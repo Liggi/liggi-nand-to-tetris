@@ -9,4 +9,57 @@
 // This program only needs to handle arguments that satisfy
 // R0 >= 0, R1 >= 0, and R0*R1 < 32768.
 
-// Put your code here.
+// Psuedo-code
+// n = R0
+// i = R1
+// sum = 0
+// LOOP:
+// 	if (i == 0) goto STOP
+//  	sum = sum + n
+//	i = i - 1
+//	goto LOOP
+// STOP:
+//	R2 = sum
+// END
+
+// n = r0
+@R0
+D=M
+@n
+M=D
+// i = R1
+@R1
+D=M
+@i
+M=D
+// sum = 0
+@sum
+M=0
+(LOOP)
+// if (i == 0) goto STOP
+@i
+D=M
+@STOP
+D;JEQ
+// sum = sum + n
+@sum
+D=M
+@n
+D=D+M
+@sum
+M=D
+// i = i - 1
+@i
+M=M-1
+// goto LOOP
+@LOOP
+0;JMP
+(STOP)
+// R2 = sum
+@sum
+D=M
+@R2
+M=D
+(END)
+@END
+0;JMP
