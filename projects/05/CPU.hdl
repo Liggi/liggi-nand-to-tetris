@@ -39,5 +39,36 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    // Put your code here:
+    Not(in=instruction[15], out=ainstruction);
+    Not(in=ainstruction, out=cinstruction);
+
+    And(a=cinstruction, b=instruction[5], out=ALUtoA);
+
+    Mux16(a=instruction, b=aluout, sel=ALUtoA, out=aregisterin);
+
+    // Ainstruction or Cinstruction that saves to A
+    Or(a=ainstruction, b=instruction[5], out=loadA);
+    ARegister(in=aregisterin, load=loadA, out=aregisterout, out[0..14]=addressM);
+
+    // Cinstruction and loading D Register
+    And(a=cinstruction, b=instruction[4], out=loadD);
+    DRegister(in=aluout, load=loadD, out=dregisterout);
+
+    Mux16(a=aregisterout, b=inM, sel=instruction[12], out=aluinputy);
+
+    ALU(x=dregisterout, y=aluinputy, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=aluout, out=outM, zr=iszr, ng=isng);
+
+    And(a=cinstruction, b=instruction[3], out=writeM);
+
+    And(a=iszr, b=instruction[1], out=jeq);
+    And(a=isng, b=instruction[2], out=jlt);
+    Or(a=iszr, b=isng, out=zrorneg);
+    Not(in=zrorneg, out=pos);
+    And(a=pos, b=instruction[0], out=jgt);
+    Or(a=jeq, b=jlt, out=jle);
+    Or(a=jle, b=jgt, out=setpcjump);
+    And(a=cinstruction, b=setpcjump, out=loadpc);
+    Not(in=loadpc, out=incpc);
+
+    PC(in=aregisterout, reset=reset, inc=incpc, load=loadpc, out[0..14]=pc);
 }
